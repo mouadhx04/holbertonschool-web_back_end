@@ -1,25 +1,20 @@
 #!/usr/bin/env python3
-'''
-flask application
-'''
-
-from flask import Flask, render_template, request
-from flask_babel import Babel
-from flask import g
+""" a basic flask app"""
+from flask import Flask, g, render_template, request
+from flask_babel import Babel, _
 
 app = Flask(__name__)
-babel = Babel(app)
 
 
 class Config(object):
-    ''' Config Class'''
+    """ Config class for Babel object """
     LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
 
 
 app.config.from_object(Config)
-Babel.default_locale = 'en'
-Babel.default_timezone = 'UTC'
-
+babel = Babel(app)
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
     2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
@@ -28,35 +23,43 @@ users = {
 }
 
 
+@app.before_request
+def before_request():
+    """ function to determine if a user is logged in, and the language """
+    id = request.args.get('login_as')
+    d_user = get_user(id)
+    if d_user:
+        g.user = d_user
+
+
+def get_user(id):
+    """ returns a user dictionary or None """
+    if id and int(id) in users:
+        return users[int(id)]
+    return None
+
+
 @app.route('/')
-def index():
-    '''0-index.html.'''
-    return render_template("5-index.html")
+def hello():
+    """ render a basic html file """
+    login = False
+    if g.get('user') is not None:
+        login = True
+
+    return render_template('5-index.html', login=login)
 
 
 @babel.localeselector
 def get_locale():
-    '''determine the best match with our supported languages.'''
-    locale = request.args.get("locale")
-    if locale:
-        return locale
+    """ a function to determine the best match with the supported languages """
+    lg = request.args.get('locale')
+    if lg in app.config['LANGUAGES']:
+        return lg
+    if (g.get('user') and g.user.get("locale", None)
+            and g.user["locale"] in app.config['LANGUAGES']):
+        return g.user["locale"]
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-def get_user():
-    '''Returns user dictor None'''
-    try:
-        log_as = request.args.get('login_as')
-        return users[int(log_as)]
-    except Exception:
-        return None
-
-
-@app.before_request
-def before_request():
-    '''set a user as a global on flask.g.user. '''
-    g.user = get_user()
-
-
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port="5000")
+    app.run()
