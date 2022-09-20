@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
-'''
-flask application
-'''
-
-from flask import Flask, render_template, request
+"""setup a basic Flask app"""
+from flask import Flask, render_template, request, g
 from flask_babel import Babel
-from flask import g
-
 app = Flask(__name__)
-babel = Babel(app)
 
-
-class Config(object):
-    ''' Config Class'''
-    LANGUAGES = ["en", "fr"]
-
-
-app.config.from_object(Config)
-Babel.default_locale = 'en'
-Babel.default_timezone = 'UTC'
 
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
@@ -28,46 +13,49 @@ users = {
 }
 
 
-@app.route('/')
-def index():
-    '''0-index.html.'''
-    return render_template("6-index.html")
+class Config:
+    """language configuration"""
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_DEFAULT_TIMEZONE = 'UTC'
+
+
+app.config.from_object("6-app.Config")
+babel = Babel(app)
 
 
 @babel.localeselector
 def get_locale():
-    '''determine the best match with our supported languages.'''
-    locale = request.args.get("locale")
-    if locale:
-        return locale
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
+    """language best match"""
+    if request.args.get('locale') in Config.LANGUAGES:
+        return request.args.get('locale')
+    if hasattr(g, "user"):
+        if g.user.get('locale') in Config.LANGUAGES:
+            return g.user.get('locale')
+    return request.accept_languages.best_match(Config.LANGUAGES)
 
-    log_as = request.args.get('login_as')
-    if log_as:
-        locale = users[int(log_as)]['locale']
-        if locale:
-            return locale
 
-    locale = request.headers.get('locale')
-    if locale:
-        return locale
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
+@app.route('/')
+def index():
+    """render html template"""
+    return render_template('6-index.html')
 
 
 def get_user():
-    '''Returns user dictor None'''
-    try:
-        log_as = request.args.get('login_as')
-        return users[int(log_as)]
-    except Exception:
-        return None
+    """get user"""
+    userID = request.args.get('login_as')
+    if userID:
+        if int(userID) in users.keys():
+            return users.get(int(userID))
+    return None
 
 
 @app.before_request
 def before_request():
-    '''set a user as a global on flask.g.user. '''
-    g.user = get_user()
+    """set global variable"""
+    if get_user():
+        g.user = get_user()
 
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port="5000")
+if __name__ == "__main__":
+    app.run(debug=True)
