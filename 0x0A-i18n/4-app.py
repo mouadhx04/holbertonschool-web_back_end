@@ -1,39 +1,37 @@
 #!/usr/bin/env python3
-"""second app"""
-from flask import Flask, render_template
-from flask_babel import Babel
-from flask import g, request
+""" Module for trying out Babel i18n """
+from flask_babel import Babel, _
+from flask import Flask, render_template, request, flash
 
-
-app = Flask(__name__)
-# app.config.from_pyfile('babel.cfg')
+app = Flask(__name__, template_folder='templates')
 babel = Babel(app)
 
 
-class Config:
-    """ config class"""
-    BABEL_DEFAULT_TIMEZONE = "UTC"
-    BABEL_DEFAULT_LOCALE = "en"
-    LANGUAGES = ["en", "fr"]
+class Config(object):
+    """ Configuration Class for Babel """
+
+    LANGUAGES = ['en', 'fr']
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_DEFAULT_TIMEZONE = 'UTC'
 
 
 app.config.from_object(Config)
 
 
-@babel.localeselector
-def get_locale():
-    """get locale function"""
-    f = request.args.get('locale')
-    if f:
-        return f
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
-
-
 @app.route('/', methods=['GET'], strict_slashes=False)
-def index():
-    """route function"""
+def hello_world() -> str:
+    """Renders a Basic Template for Babel Implementation"""
     return render_template("4-index.html")
 
 
-if __name__ == '__main__':
+@babel.localeselector
+def get_locale() -> str:
+    """Select a language translation to use for that request"""
+    locale = request.args.get("locale")
+    if locale and locale in app.config['LANGUAGES']:
+        return locale
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+
+if __name__ == "__main__":
     app.run()
