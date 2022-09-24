@@ -1,6 +1,6 @@
 -- Creates a stored procedure AddBonus
 -- that adds a new correction for a student
-DELIMITER |
+
 CREATE PROCEDURE AddBonus (
     IN user_id int,
     IN project_name varchar(255),
