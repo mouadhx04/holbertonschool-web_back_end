@@ -3,4 +3,4 @@ export default function getListStudentIds(objs) {
       return [];
     }
     return objs.map((x) => x.id);
-  }
+}
