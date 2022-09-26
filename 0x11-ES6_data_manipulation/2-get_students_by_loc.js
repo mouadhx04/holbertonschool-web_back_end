@@ -8,4 +8,4 @@ function getStudentsByLocation(students, city) {
     return result;
   }
   
-  export default getStudentsByLocation;
+export default getStudentsByLocation;
