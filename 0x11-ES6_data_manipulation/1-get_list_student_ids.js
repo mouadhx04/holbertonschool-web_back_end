@@ -1,11 +1,11 @@
 function getListStudentIds(students) {
-    if (!Array.isArray(students)) {
-      return [];
+  if (!Array.isArray(students)) {
+    return [];
     }
   
-    const ids = students.map((item) => item.id);
+const ids = students.map((item) => item.id);
     
-    return ids;
+  return ids;
 }
   
 export default getListStudentIds;
