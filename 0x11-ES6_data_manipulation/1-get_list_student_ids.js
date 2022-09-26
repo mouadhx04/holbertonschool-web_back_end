@@ -4,8 +4,8 @@ function getListStudentIds(students) {
     }
   
     const ids = students.map((item) => item.id);
-  
+    
     return ids;
-  }
+}
   
-  export default getListStudentIds;
+export default getListStudentIds;
