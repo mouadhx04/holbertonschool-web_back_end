@@ -1,1 +1,1 @@
-# 0x11-ES6_data_manipulationj
+# 0x11-ES6_data_manipulation
