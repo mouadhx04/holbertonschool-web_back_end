@@ -1,5 +1,5 @@
 export default function updateStudentGradeByCity(students, city, newGrades) {
-  /* eslint-disable no-param-reassign */
+
   if (Array.isArray(students) === false) {
     return [];
   }
