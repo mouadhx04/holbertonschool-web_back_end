@@ -1,3 +1,6 @@
-export default function createInt8TypedArray(Array) {
-  return new Set(Array);
-}
+function setFromArray(array) {
+    const set = new Set(array);
+    return set;
+  }
+  
+  export default setFromArray;
